@@ -16,26 +16,34 @@ The backend is written in Node.js using Typescript and deployed as [Firebase Clo
 
 ## 💻 Development
 
-First, run the development server:
+Install the dependencies (Node 24, Yarn 4 via `corepack enable`). The functions are a Yarn project of their own:
 
 ```bash
+yarn install
+yarn --cwd functions install
+```
+
+Start the Firebase emulators (auth, database, functions and hosting on port 5050) and the development server:
+
+```bash
+yarn --cwd functions build
+yarn emulators
+# in a second terminal:
 yarn dev
 ```
 
-Now you can edit all pages (`pages/`) and components (`components/`).  
+Now you can edit all pages (`src/app/`) and components (`src/components/`).  
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 Learn more about Next.js in the [Next.js Documentation](https://nextjs.org/docs).
 
-Start the firebase emulators to test the backend:
-```bash
-firebase emulators:start
-# for functions file watching:
-cd functions
-yarn watch
-```
+You can edit all backend code in the `functions/src/` directory (`yarn --cwd functions watch` rebuilds on change).  
+Firebase Cloud Functions are registered in `functions/src/index.ts`. Code used by both sides lives in `src/shared/`.
 
-You can edit all backend code in the `functions/src/` directory.  
-Firebase Cloud Functions are registered in `index.js`.
+Before pushing, run the same checks as CI:
+
+```bash
+yarn typecheck && yarn lint && yarn format:check
+```
 
 Learn more about Firebase in the [Firebase Documentation](https://firebase.google.com/docs/build).

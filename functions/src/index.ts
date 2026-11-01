@@ -1,14 +1,8 @@
-import * as admin from 'firebase-admin'
+import { initializeApp } from 'firebase-admin/app';
 
-import app from './urlShortener/app'
-import scheduler from './clearOutdatedUrls'
+import clearOutdatedUrls from './clearOutdatedUrls';
+import urlShortener from './urlShortener/app';
 
-admin.initializeApp()
+initializeApp();
 
-const urlShortener = app
-const clearOutdatedUrls = scheduler
-
-export {
-  urlShortener,
-  clearOutdatedUrls,
-}
+export { clearOutdatedUrls, urlShortener };

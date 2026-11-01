@@ -1,40 +1,41 @@
-import { Request, Response } from 'express'
-import { getUrlRoute, UrlRoute } from '../lib/db'
-import * as admin from 'firebase-admin'
+import type { Response } from 'express';
+import { ServerValue } from 'firebase-admin/database';
+
+import type { UrlInfo } from '../../../src/shared/types';
+import { getRouteRef, getUrlRoute } from '../lib/db';
+import type { SlugRequest } from '../lib/slug';
 
 /**
- * Returns public data for a specific shortened url that will be determined by the slug query parameter
+ * Returns public data for a specific shortened url that will be determined by the slug parameter
  * Should be used with a middleware that authorizes password protected urls
  *
  * @param {Request} req
  * @param {Response} res
  */
-export default (req: Request, res: Response): void => {
-  const {
-    params: { slug },
-  } = req
+const getUrl = async (req: SlugRequest, res: Response): Promise<void> => {
+  const { slug } = req.params;
+  const route = await getUrlRoute(slug);
 
-  getUrlRoute(slug)
-      .then((route: UrlRoute) => {
-        res.json({
-          slug: route.slug,
-          url: route.url,
-          password: Object.prototype.hasOwnProperty.call(route, 'password'),
-        })
+  if (!route) {
+    res.status(404).json({
+      msg: 'Url with that slug does not exist!',
+    });
+    return;
+  }
 
-        if (req.query.visit) {
-          console.log(req.query)
-          admin
-              .database()
-              .ref(`routes/${slug}`)
-              .update({
-                visits: admin.database.ServerValue.increment(1),
-              })
-        }
-      })
-      .catch(() => {
-        res.status(404).json({
-          msg: 'Url with that slug does not exist!',
-        }).end()
-      })
-}
+  if (req.query.visit) {
+    await getRouteRef(slug).update({
+      visits: ServerValue.increment(1),
+    });
+  }
+
+  const info: UrlInfo = {
+    slug,
+    url: route.url,
+    password: !!route.password,
+  };
+
+  res.json(info);
+};
+
+export default getUrl;

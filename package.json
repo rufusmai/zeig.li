@@ -2,28 +2,45 @@
   "name": "zeigml",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "dev": "next dev",
-    "build": "next build && next export",
-    "start": "next start"
+    "build": "next build",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix && prettier --write .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "next typegen && tsc --noEmit && tsc -p functions --noEmit",
+    "emulators": "firebase emulators:start"
   },
   "dependencies": {
-    "@headlessui/react": "^1.0.0",
-    "@heroicons/react": "^1.0.0",
-    "@svgr/webpack": "^5.5.0",
-    "autoprefixer": "^10.2.1",
-    "axios": "^0.21.1",
-    "firebase": "^8.3.3",
-    "next": "10.0.5",
-    "next-themes": "^0.0.14",
-    "postcss": "^8.2.4",
-    "react": "17.0.1",
-    "react-dom": "17.0.1",
-    "tailwindcss": "^2.1.1"
+    "@headlessui/react": "^2.2.10",
+    "@heroicons/react": "^2.2.0",
+    "firebase": "^13.1.0",
+    "next": "16.4.3",
+    "next-themes": "^0.4.6",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
   },
   "devDependencies": {
-    "@types/node": "^14.14.37",
-    "@types/react": "^17.0.3",
-    "typescript": "^4.2.4"
-  }
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^24",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@typescript-eslint/eslint-plugin": "^8.72.1",
+    "@typescript-eslint/parser": "^8.72.1",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "16.4.3",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-simple-import-sort": "^14.0.0",
+    "eslint-plugin-tailwindcss": "^4.4.0",
+    "eslint-plugin-unused-imports": "^4.4.1",
+    "firebase-tools": "^15.34.2",
+    "prettier": "^3.9.10",
+    "tailwindcss": "^4.3.3",
+    "typescript": "~6.0.3"
+  },
+  "packageManager": "yarn@4.14.1"
 }

@@ -4,7 +4,7 @@
       "$route": {
         ".read": "data.child('uid').val() === auth.uid"
       },
-      ".indexOn": "uid"
+      ".indexOn": ["uid", "validUntil"]
     },
     ".write": false
   }

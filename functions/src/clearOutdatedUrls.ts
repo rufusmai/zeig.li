@@ -1,27 +1,35 @@
-import * as admin from 'firebase-admin'
-import * as functions from 'firebase-functions'
-import { database } from 'firebase-admin/lib/database'
-import moment from 'moment'
+import { getDatabase } from 'firebase-admin/database';
+import { logger } from 'firebase-functions';
+import { onSchedule } from 'firebase-functions/v2/scheduler';
 
-export default functions.pubsub.schedule('every 1 day')
-    .onRun(() => {
-      const routes = admin
-          .database()
-          .ref('routes')
+import { nowSeconds } from '../../src/shared/time';
 
-      routes
-          .orderByChild('validUntil')
-          .startAt(moment().unix())
-          .get()
-          .then((data: database.DataSnapshot) => {
-            const updates: { [key: string]: null } = {}
-            data.forEach((child) => {
-              updates[<string> child.key] = null
-              return false
-            })
+/**
+ * Deletes every route whose validUntil has passed.
+ * Routes without validUntil never expire (null sorts first, so the query starts at 1).
+ */
+export default onSchedule(
+  {
+    schedule: 'every day 03:00',
+    timeZone: 'Europe/Berlin',
+    region: 'us-central1',
+  },
+  async () => {
+    const routes = getDatabase().ref('routes');
+    const snapshot = await routes
+      .orderByChild('validUntil')
+      .startAt(1)
+      .endAt(nowSeconds())
+      .get();
 
-            console.log(`Removing ${Object.keys(updates).length} outdated routes...`)
-            routes.update(updates)
-            return false
-          })
-    })
+    const updates: Record<string, null> = {};
+    snapshot.forEach((child) => {
+      if (child.key) {
+        updates[child.key] = null;
+      }
+    });
+
+    logger.info(`Removing ${Object.keys(updates).length} outdated routes...`);
+    await routes.update(updates);
+  }
+);
