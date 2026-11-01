@@ -13,6 +13,7 @@ import { checkUrl, normalizeUrl, SHORT_DOMAIN } from '../../../src/shared/url';
 import { getUser } from '../lib/auth/firebase';
 import { hashPassword } from '../lib/auth/password';
 import { getRouteRef, getUrlRoutesOfUser } from '../lib/db';
+import { getClientIp, takeDailyQuota } from '../lib/rateLimit';
 import { getSlug } from '../lib/slug';
 import { getWebRiskThreats } from '../lib/webRisk';
 
@@ -121,6 +122,8 @@ const shortenUrl = async (
     return;
   }
 
+  const clientIp = getClientIp(request);
+
   // abort if user is not premium and has its limit exceeded
   if (user.premium !== true) {
     const minDate = nowSeconds() - DAY;
@@ -130,6 +133,15 @@ const shortenUrl = async (
     ).length;
 
     if (count >= URL_USER_LIMIT) {
+      fail(response, 429, 'limit_reached', 'Max url count exceeded!');
+      return;
+    }
+
+    // A new anonymous account per link would get around the limit above
+    if (!(await takeDailyQuota(clientIp.ip))) {
+      logger.warn('Daily limit of an IP address or the site reached', {
+        ipSource: clientIp.source,
+      });
       fail(response, 429, 'limit_reached', 'Max url count exceeded!');
       return;
     }
@@ -181,6 +193,12 @@ const shortenUrl = async (
     visits: 0,
   };
   await getRouteRef(slug).set(route);
+
+  logger.info('Created a short link', {
+    slug,
+    host: new URL(url).hostname,
+    ipSource: clientIp.source,
+  });
 
   const result: ShortenUrlResponse = {
     msg: 'Successfully saved url!',

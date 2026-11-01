@@ -1,5 +1,11 @@
 import { getApp, getApps, initializeApp } from 'firebase/app';
 import {
+  type AppCheck,
+  getLimitedUseToken,
+  initializeAppCheck,
+  ReCaptchaEnterpriseProvider,
+} from 'firebase/app-check';
+import {
   type Auth,
   connectAuthEmulator,
   getAuth,
@@ -25,20 +31,39 @@ const firebaseConfig = {
   measurementId: 'G-4507QNJ6LY',
 };
 
-let services: { auth: Auth; db: Database } | undefined;
+/**
+ * reCAPTCHA Enterprise key behind App Check, valid for zeig.li and the Firebase hosts
+ */
+const RECAPTCHA_SITE_KEY = '6LdougsuAAAAAPtLo-BGjmnjqkTXMsINo5MoDW7A';
+
+const isDevelopment = process.env.NODE_ENV === 'development';
+
+let services:
+  { auth: Auth; db: Database; appCheck: AppCheck | undefined } | undefined;
 
 /**
  * Initializes Firebase on first use, so nothing runs while the static pages
- * are prerendered at build time.
+ * are prerendered at build time. Locally the emulators are used and App Check
+ * is left out (the emulator does not check it).
  */
 const getServices = () => {
   if (!services) {
     const isFirstInit = getApps().length === 0;
     const app = isFirstInit ? initializeApp(firebaseConfig) : getApp();
 
-    services = { auth: getAuth(app), db: getDatabase(app) };
+    services = {
+      auth: getAuth(app),
+      db: getDatabase(app),
+      appCheck: isDevelopment
+        ? undefined
+        : initializeAppCheck(app, {
+            provider: new ReCaptchaEnterpriseProvider(RECAPTCHA_SITE_KEY),
+            // Only single-use tokens are needed, see getAppCheckToken
+            isTokenAutoRefreshEnabled: false,
+          }),
+    };
 
-    if (isFirstInit && process.env.NODE_ENV === 'development') {
+    if (isFirstInit && isDevelopment) {
       connectDatabaseEmulator(services.db, 'localhost', 9000);
       connectAuthEmulator(services.auth, 'http://localhost:9099', {
         disableWarnings: true,
@@ -47,6 +72,14 @@ const getServices = () => {
   }
 
   return services;
+};
+
+/**
+ * Starts Firebase and reCAPTCHA early: reCAPTCHA rates the visit better when
+ * it has seen more of it than the moment of the click.
+ */
+export const prepareFirebase = (): void => {
+  getServices();
 };
 
 /**
@@ -67,6 +100,16 @@ export const getIdToken = async (): Promise<string> => {
   }
 
   return (await signInAnonymously(auth)).user.getIdToken();
+};
+
+/**
+ * A single-use App Check token: the function consumes it, so every new link
+ * needs its own reCAPTCHA check. Undefined in development.
+ */
+export const getAppCheckToken = async (): Promise<string | undefined> => {
+  const { appCheck } = getServices();
+
+  return appCheck ? (await getLimitedUseToken(appCheck)).token : undefined;
 };
 
 export const getVisitsRef = (slug: string): DatabaseReference =>

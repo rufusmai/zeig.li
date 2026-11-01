@@ -2,6 +2,7 @@ import cors from 'cors';
 import express from 'express';
 import { onRequest } from 'firebase-functions/v2/https';
 
+import { requireAppCheck } from '../lib/auth/appCheck';
 import { readIdToken, requireIdToken } from '../lib/auth/firebase';
 import { verifyPasswordMiddleware } from '../lib/auth/password';
 import { validateSlugMiddleware } from '../lib/slug';
@@ -14,7 +15,7 @@ const corsMiddle = cors({ origin: true });
 
 app.options('/{*splat}', corsMiddle);
 
-app.post('/url', corsMiddle, requireIdToken, shortenUrl);
+app.post('/url', corsMiddle, requireAppCheck, requireIdToken, shortenUrl);
 app.get(
   '/url/:slug',
   corsMiddle,

@@ -1,9 +1,10 @@
 'use client';
 
 import { Transition } from '@headlessui/react';
-import { type FormEvent, useState } from 'react';
+import { type FormEvent, useEffect, useState } from 'react';
 
 import { ApiError, shortenUrl, type UrlVisibility } from '@/lib/api';
+import { prepareFirebase } from '@/lib/firebase';
 import { getRandomSlug } from '@/shared/slug';
 import type { ShortenUrlResponse } from '@/shared/types';
 import { checkUrl } from '@/shared/url';
@@ -50,6 +51,10 @@ const ShortenUrlForm = () => {
         : undefined;
   // An unverified url may be sent again
   const urlValid = !problem || problem === 'unverified';
+
+  useEffect(() => {
+    prepareFirebase();
+  }, []);
 
   const reset = () => {
     setUrl('');
@@ -105,6 +110,9 @@ const ShortenUrlForm = () => {
           case 'limit_reached':
             setLimitReached(true);
             break;
+          default:
+            // e.g. the bot check (App Check) failed: a retry gets a new token
+            setRejected({ url, problem: 'unverified' });
         }
       })
       .finally(() => {

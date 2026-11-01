@@ -6,7 +6,7 @@ import type {
   UrlInfo,
 } from '@/shared/types';
 
-import { getIdToken } from './firebase';
+import { getAppCheckToken, getIdToken } from './firebase';
 
 /**
  * In development the Hosting emulator forwards the API to the Functions emulator.
@@ -66,13 +66,17 @@ export const shortenUrl = async ({
       ? nowSeconds() + visibility.time * 60
       : undefined;
 
-  const token = await getIdToken();
+  const [token, appCheckToken] = await Promise.all([
+    getIdToken(),
+    getAppCheckToken(),
+  ]);
 
   return request<ShortenUrlResponse>('/url', {
     method: 'POST',
     headers: {
       authorization: `Bearer ${token}`,
       'content-type': 'application/json',
+      ...(appCheckToken && { 'X-Firebase-AppCheck': appCheckToken }),
     },
     body: JSON.stringify({
       slug,

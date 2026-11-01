@@ -56,6 +56,7 @@ export type UrlInfo = {
  * Tells the form why `POST /url` failed
  */
 export type ApiErrorCode =
+  | 'app_check_failed'
   | 'unauthorized'
   | 'missing_parameters'
   | 'url_invalid'
