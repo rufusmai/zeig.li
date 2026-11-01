@@ -1,0 +1,33 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Tailwind 4 dropped these v3 defaults; the design was built with them. */
+@layer base {
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@utility container {
+  margin-inline: auto;
+}
+
+@utility transition-max-width {
+  transition-property: max-width;
+}
+
+@utility drop-shadow-logo {
+  filter: drop-shadow(2px 2px 6px #ffffffcc);
+}
+
+@utility transition-placeholder {
+  &::placeholder {
+    transition: color ease-in-out 0.3s;
+  }
+}

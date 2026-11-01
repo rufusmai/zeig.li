@@ -1,23 +1,30 @@
-import * as functions from 'firebase-functions'
+import cors from 'cors';
+import express from 'express';
+import { onRequest } from 'firebase-functions/v2/https';
 
-import shortenUrl from './shortenUrl'
-import getUrl from './getUrl'
-import resolveUrl from './resolveUrl'
-import { verifyPasswordMiddleware } from '../lib/auth/password'
-import { getVerifyIdTokenMiddleware } from '../lib/auth/firebase'
-import { validateSlugMiddleware } from '../lib/slug'
+import { readIdToken, requireIdToken } from '../lib/auth/firebase';
+import { verifyPasswordMiddleware } from '../lib/auth/password';
+import { validateSlugMiddleware } from '../lib/slug';
+import getUrl from './getUrl';
+import resolveUrl from './resolveUrl';
+import shortenUrl from './shortenUrl';
 
-import express = require('express')
-import cors = require('cors')
+const app = express();
+const corsMiddle = cors({ origin: true });
 
-const app = express()
-const corsMiddle = cors({ origin: true })
+app.options('/{*splat}', corsMiddle);
 
-app.options('*', corsMiddle)
+app.post('/url', corsMiddle, requireIdToken, shortenUrl);
+app.get(
+  '/url/:slug',
+  corsMiddle,
+  validateSlugMiddleware,
+  readIdToken,
+  verifyPasswordMiddleware,
+  getUrl
+);
 
-app.post('/url', corsMiddle, getVerifyIdTokenMiddleware(), shortenUrl)
-app.get('/url/:slug', corsMiddle, validateSlugMiddleware, getVerifyIdTokenMiddleware(verifyPasswordMiddleware), getUrl)
+app.get('/:slug', validateSlugMiddleware, resolveUrl);
 
-app.get('/:slug', validateSlugMiddleware, resolveUrl)
-
-export default functions.https.onRequest(app)
+// Same region as the Realtime Database
+export default onRequest({ region: 'us-central1' }, app);

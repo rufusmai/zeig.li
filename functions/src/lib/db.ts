@@ -1,82 +1,71 @@
-import * as admin from 'firebase-admin'
-import { database } from 'firebase-admin/lib/database'
-import moment from 'moment'
+import { getDatabase, type Reference } from 'firebase-admin/database';
+
+import { nowSeconds } from '../../../src/shared/time';
+import type { UrlRoute } from '../../../src/shared/types';
+
+export const getRouteRef = (slug: string): Reference =>
+  getDatabase().ref(`routes/${slug}`);
 
 /**
- * The data that a shortened URL can hold
+ * Routes created before 2026 may store validUntil as an ISO date string.
  */
-export type UrlRoute = {
-  /**
-   * the slug must be in a base64url format like validated [here]{@link validateSlug}
-   */
-  slug: string,
-  /**
-   * the uid identify the creator of this shortened url
-   */
-  uid: string,
-  /**
-   * must be a valid url
-   */
-  url: string
-  /**
-   * timestamp where shortened url was created
-   */
-  created: number,
-  /**
-   * password which must be provided if resolving of shortened url is requested
-   * only the owners {@link uid} can access all data without providing a password
-   */
-  password?: string,
-  /**
-   * timestamp until then this shortened url is valid.
-   * After that period this url cannot be resolved anymore and will be deleted
-   */
-  validUntil?: number
-}
+const expiresAt = (route: UrlRoute): number | null => {
+  const validUntil = route.validUntil as number | string | null | undefined;
+
+  if (typeof validUntil === 'string') {
+    return Math.floor(Date.parse(validUntil) / 1000);
+  }
+
+  return validUntil ?? null;
+};
+
+export const isExpired = (route: UrlRoute): boolean => {
+  const until = expiresAt(route);
+
+  return until !== null && until < nowSeconds();
+};
 
 /**
- * Searches for any shortened url by the unique slug
- * Returns a Promise which resolves with the found {@link UrlRoute}, rejects otherwise
+ * Returns the route of a slug, or undefined if there is none or it has expired.
+ * Expired routes are deleted on the way.
  *
  * @param {string} slug
- * @return {Promise<UrlRoute>} found route or rejects if no route could be found
+ * @return {Promise<UrlRoute | undefined>} the route, if it can still be resolved
  */
-export const getUrlRoute = (slug: string): Promise<UrlRoute> => {
-  return new Promise<UrlRoute>(((resolve, reject) => {
-    const ref = admin.database().ref(`routes/${slug}`)
+export const getUrlRoute = async (
+  slug: string
+): Promise<UrlRoute | undefined> => {
+  const ref = getRouteRef(slug);
+  const snapshot = await ref.get();
 
-    ref.once('value')
-        .then(async (result: database.DataSnapshot) => {
-          if (!result.exists()) {
-            reject(new Error('Url does not exist'))
-          }
+  if (!snapshot.exists()) {
+    return undefined;
+  }
 
-          const val = result.val()
+  const route = snapshot.val() as UrlRoute;
 
-          if (val && val.validUntil < moment().unix()) {
-            reject(new Error('Url is outdated'))
-            await ref.remove()
-          }
+  if (isExpired(route)) {
+    await ref.remove();
+    return undefined;
+  }
 
-          resolve(val)
-        })
-        .catch((err) => reject(err))
-  }))
-}
+  return route;
+};
 
 /**
  * Returns all {@link UrlRoute}s a uid has created
  *
  * @param {string} uid firebase auth uid
- * @return {Promise<{UrlRoute}>} all routes the user has created
+ * @return {Promise<Record<string, UrlRoute>>} all routes the user has created, by slug
  */
-export const getUrlRoutesOfUser = async (uid: string): Promise<{ [slug: string]: UrlRoute }> => {
-  const snapshot = await admin
-      .database()
-      .ref('routes')
-      .orderByChild('uid')
-      .equalTo(uid)
-      .get()
+export const getUrlRoutesOfUser = async (
+  uid: string
+): Promise<Record<string, UrlRoute>> => {
+  const snapshot = await getDatabase()
+    .ref('routes')
+    .orderByChild('uid')
+    .equalTo(uid)
+    .get();
 
-  return snapshot.val() ?? {}
-}
+  return (snapshot.val() as Record<string, UrlRoute> | null) ?? {};
+};

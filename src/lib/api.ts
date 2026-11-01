@@ -1,0 +1,98 @@
+import { nowSeconds } from '@/shared/time';
+import type { ShortenUrlResponse, UrlInfo } from '@/shared/types';
+
+import { getUserOrCreate } from './firebase';
+
+/**
+ * In development the Hosting emulator forwards the API to the Functions emulator.
+ * It runs on 5050 because macOS keeps 5000 for AirPlay.
+ */
+const API_BASE =
+  process.env.NODE_ENV === 'development' ? 'http://localhost:5050' : '';
+
+export class ApiError extends Error {
+  constructor(readonly status: number) {
+    super(`Request failed with status ${status}`);
+    this.name = 'ApiError';
+  }
+}
+
+const request = async <T>(path: string, init?: RequestInit): Promise<T> => {
+  const response = await fetch(`${API_BASE}${path}`, init);
+
+  if (!response.ok) {
+    throw new ApiError(response.status);
+  }
+
+  return (await response.json()) as T;
+};
+
+export type UrlVisibility = {
+  id: string;
+  name: string;
+  /**
+   * Minutes until the link expires, -1 for never
+   */
+  time: number;
+};
+
+export type ShortenUrlConfig = {
+  slug: string;
+  replaceSlugIfExists: boolean;
+  visibility?: UrlVisibility;
+  url: string;
+  password?: string;
+};
+
+export const shortenUrl = async ({
+  slug,
+  replaceSlugIfExists,
+  visibility,
+  url,
+  password,
+}: ShortenUrlConfig): Promise<ShortenUrlResponse> => {
+  const validUntil =
+    visibility && visibility.time > 0
+      ? nowSeconds() + visibility.time * 60
+      : undefined;
+
+  const user = await getUserOrCreate();
+  const token = await user.getIdToken();
+
+  return request<ShortenUrlResponse>('/url', {
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${token}`,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      slug,
+      replaceSlugIfExists,
+      url,
+      password,
+      validUntil,
+    }),
+  });
+};
+
+/**
+ * Resolves to true if nobody uses the slug yet
+ */
+export const checkSlug = async (slug: string): Promise<boolean> => {
+  const response = await fetch(`${API_BASE}/url/${encodeURIComponent(slug)}`);
+
+  return response.status === 404;
+};
+
+const toBase64 = (value: string): string =>
+  btoa(String.fromCharCode(...new TextEncoder().encode(value)));
+
+export const authorizeRoute = (
+  slug: string,
+  password: string
+): Promise<UrlInfo> =>
+  request<UrlInfo>(`/url/${encodeURIComponent(slug)}?visit=true`, {
+    headers: {
+      authorization: `Basic ${toBase64(`:${password}`)}`,
+    },
+  });

@@ -1,46 +1,70 @@
-import * as admin from 'firebase-admin'
-import { auth } from 'firebase-admin/lib/auth'
-import { NextFunction, Request, RequestHandler, Response } from 'express'
-
-let user: auth.DecodedIdToken
+import type { NextFunction, Request, Response } from 'express';
+import { type DecodedIdToken, getAuth } from 'firebase-admin/auth';
 
 /**
- * Middleware that verifies if the request has an Authorization header containing a valid Bearer id token
- * The token must be a valid firebase auth id token.
+ * Verifies a Firebase Auth ID token sent as `Authorization: Bearer <token>`
  *
- * @param {RequestHandler} alternative alternative middleware that will be called if validation fails
- * @return {undefined}
+ * @param {Request} req
+ * @return {Promise<DecodedIdToken | undefined>} the user, if the token is valid
  */
-export const getVerifyIdTokenMiddleware = (alternative?: RequestHandler) => {
-  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const auth = req.headers.authorization
+const verifyBearerToken = async (
+  req: Request
+): Promise<DecodedIdToken | undefined> => {
+  const [type, token] = req.headers.authorization?.split(' ') ?? [];
 
-    if (auth) {
-      try {
-        user = await admin
-            .auth()
-            .verifyIdToken(auth.split(' ')[1])
-
-        next()
-        return
-      } catch (error) {
-        // continue regardless of error
-      }
-    }
-
-    if (alternative) {
-      alternative(req, res, next)
-    } else {
-      res.status(403).json({
-        msg: 'Missing or invalid ID token!',
-      }).end()
-    }
+  if (type !== 'Bearer' || !token) {
+    return undefined;
   }
-}
+
+  try {
+    return await getAuth().verifyIdToken(token);
+  } catch {
+    return undefined;
+  }
+};
 
 /**
- * gets previous the authenticated user if {@link verifyIdToken} middleware was used
+ * Middleware that stores the user of a valid ID token in `res.locals.user`.
+ * Requests without one continue as anonymous visitors.
  *
- * @return {auth.DecodedIdToken} id token
+ * The user is kept per response, not per module: a 2nd gen function handles
+ * many requests at once in the same instance.
  */
-export const getUser = (): auth.DecodedIdToken => user
+export const readIdToken = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  res.locals.user = await verifyBearerToken(req);
+  next();
+};
+
+/**
+ * Like {@link readIdToken}, but answers 403 without a valid ID token
+ */
+export const requireIdToken = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const user = await verifyBearerToken(req);
+
+  if (!user) {
+    res.status(403).json({
+      msg: 'Missing or invalid ID token!',
+    });
+    return;
+  }
+
+  res.locals.user = user;
+  next();
+};
+
+/**
+ * Gets the user that {@link readIdToken} or {@link requireIdToken} stored for this request
+ *
+ * @param {Response} res
+ * @return {DecodedIdToken | undefined} decoded id token
+ */
+export const getUser = (res: Response): DecodedIdToken | undefined =>
+  res.locals.user as DecodedIdToken | undefined;
