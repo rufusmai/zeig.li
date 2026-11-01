@@ -25,7 +25,7 @@ const SmallHeader = () => {
           </div>
 
           <h1 className="-mb-5 ml-3 bg-linear-to-r from-blue-500 to-cyan-600 bg-clip-text pb-5 text-6xl font-bold text-transparent">
-            zeig.ml
+            zeig.li
           </h1>
         </div>
         <h3 className="mt-2 text-center text-2xl text-gray-100/75">

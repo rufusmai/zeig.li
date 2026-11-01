@@ -5,7 +5,7 @@ import ErrorDetails from '@/components/error/errorDetails';
 import SmallHeader from '@/components/layout/smallHeader';
 
 export const metadata: Metadata = {
-  title: 'Nicht verfügbar | zeig.ml',
+  title: 'Nicht verfügbar',
 };
 
 const ErrorPage = () => {

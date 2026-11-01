@@ -25,7 +25,7 @@ const Footer = () => {
       </div>
       <div>
         <a
-          href="https://github.com/rufusmai/zeig.ml"
+          href="https://github.com/rufusmai/zeig.li"
           target="_blank"
           rel="noopener noreferrer"
           className="mt-1 inline-block text-xs hover:underline"

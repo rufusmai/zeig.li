@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 
+import { SHORT_DOMAIN } from '@/shared/url';
+
 const getMessage = (status: number): string => {
   switch (status) {
     case 404:
@@ -37,7 +39,7 @@ const ErrorDetails = () => {
     <div className="mx-auto mt-32 inline-block text-center">
       <ExclamationCircleIcon className="mx-auto size-20 text-gray-400" />
       <span className="mt-4 block text-xl font-semibold text-gray-400">
-        {`https://zeig.ml/${slug}`}
+        {`https://${SHORT_DOMAIN}/${slug}`}
       </span>
       <h2 className="mx-auto mt-2 max-w-xs text-4xl font-bold text-gray-500 dark:text-gray-300">
         {getMessage(Number(status))}

@@ -11,6 +11,7 @@ import { type ChangeEvent, Fragment, useEffect } from 'react';
 
 import { checkSlug, type UrlVisibility } from '@/lib/api';
 import { MAX_SLUG_LENGTH, validateSlug } from '@/shared/slug';
+import { SHORT_DOMAIN } from '@/shared/url';
 
 type Props = {
   slug: string;
@@ -90,7 +91,7 @@ const OptionsBox = ({
         <div className="relative text-2xl">
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center">
             <span className="font-semibold text-gray-400 dark:text-gray-400">
-              zeig.ml/
+              {SHORT_DOMAIN}/
             </span>
           </div>
           <input

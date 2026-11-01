@@ -24,10 +24,10 @@ const Header = () => {
 
         <h1 className="mt-2 text-center text-6xl font-bold">
           <span className="bg-linear-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent">
-            zeig.ml
+            zeig.li
           </span>
           <small className="mt-2 block text-2xl font-semibold text-gray-500 dark:text-gray-400">
-            Zeig&apos; mal,{' '}
+            Zeig&apos; Link:{' '}
             <span className="inline-block h-8 w-16 animate-pulse rounded-lg bg-linear-to-tr from-gray-200 to-gray-100 dark:from-gray-600 dark:to-gray-700">
               ...
             </span>{' '}

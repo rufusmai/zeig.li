@@ -12,7 +12,10 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'zeig.ml | URL Shortener',
+  title: {
+    default: 'zeig.li | URL Shortener',
+    template: '%s | zeig.li',
+  },
   icons: { icon: '/favicon.ico' },
 };
 
@@ -27,7 +30,7 @@ const RootLayout = ({ children }: { children: ReactNode }) => {
         <Script
           src="https://datenkrake.rufusmai.com/umami.js"
           data-website-id="45dab984-6297-4ce7-97f0-2e203a83260e"
-          data-domains="zeig.ml"
+          data-domains="zeig.li"
           strategy="afterInteractive"
         />
       </body>

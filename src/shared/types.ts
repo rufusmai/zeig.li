@@ -32,7 +32,7 @@ export type UrlRoute = {
 export type ShortenUrlResponse = {
   msg: string;
   /**
-   * The short URL, e.g. https://zeig.ml/abc123
+   * The short URL, e.g. https://zeig.li/abc123
    */
   url: string;
   slug: string;

@@ -3,7 +3,7 @@ import type { Request, Response } from 'express';
 import { validateSlug } from '../../../src/shared/slug';
 import { nowSeconds } from '../../../src/shared/time';
 import type { ShortenUrlResponse, UrlRoute } from '../../../src/shared/types';
-import { validateUrl } from '../../../src/shared/url';
+import { SHORT_DOMAIN, validateUrl } from '../../../src/shared/url';
 import { getUser } from '../lib/auth/firebase';
 import { hashPassword } from '../lib/auth/password';
 import { getRouteRef, getUrlRoutesOfUser } from '../lib/db';
@@ -147,7 +147,7 @@ const shortenUrl = async (
 
   const result: ShortenUrlResponse = {
     msg: 'Successfully saved url!',
-    url: `https://zeig.ml/${slug}`,
+    url: `https://${SHORT_DOMAIN}/${slug}`,
     slug,
     password: !!password,
     validUntil,

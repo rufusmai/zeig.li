@@ -10477,9 +10477,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zeigml@workspace:.":
+"zeigli@workspace:.":
   version: 0.0.0-use.local
-  resolution: "zeigml@workspace:."
+  resolution: "zeigli@workspace:."
   dependencies:
     "@headlessui/react": "npm:^2.2.10"
     "@heroicons/react": "npm:^2.2.0"

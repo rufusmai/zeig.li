@@ -5,7 +5,7 @@ import AuthorizeForm from '@/components/authorize/authorizeForm';
 import SmallHeader from '@/components/layout/smallHeader';
 
 export const metadata: Metadata = {
-  title: 'Zugangsdaten benötigt | zeig.ml',
+  title: 'Zugangsdaten benötigt',
 };
 
 const Authorize = () => {

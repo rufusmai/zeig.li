@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 
 import { getVisitsRef } from '@/lib/firebase';
 import type { ShortenUrlResponse } from '@/shared/types';
+import { SHORT_DOMAIN } from '@/shared/url';
 
 type Props = {
   shortUrl: ShortenUrlResponse;
@@ -47,7 +48,7 @@ const SuccessBox = ({ shortUrl, onClose }: Props) => {
               target="_blank"
               rel="noopener noreferrer"
             >
-              zeig.ml/{shortUrl.slug}
+              {SHORT_DOMAIN}/{shortUrl.slug}
             </a>
             <button
               type="button"

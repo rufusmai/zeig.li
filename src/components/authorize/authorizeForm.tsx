@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { type ChangeEvent, type FormEvent, useEffect, useState } from 'react';
 
 import { ApiError, authorizeRoute } from '@/lib/api';
+import { SHORT_DOMAIN } from '@/shared/url';
 
 const AuthorizeForm = () => {
   const router = useRouter();
@@ -54,7 +55,9 @@ const AuthorizeForm = () => {
 
   return (
     <form onSubmit={handleSubmit} className="mt-32 text-center">
-      <h3 className="text-4xl font-bold">zeig.ml/{slug}</h3>
+      <h3 className="text-4xl font-bold">
+        {SHORT_DOMAIN}/{slug}
+      </h3>
       <span className="text-gray-400">benötigt ein Passwort</span>
 
       <div className="mt-10">
