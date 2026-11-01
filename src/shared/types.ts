@@ -51,3 +51,22 @@ export type UrlInfo = {
   url: string;
   password: boolean;
 };
+
+/**
+ * Tells the form why `POST /url` failed
+ */
+export type ApiErrorCode =
+  | 'unauthorized'
+  | 'missing_parameters'
+  | 'url_invalid'
+  | 'url_blocked'
+  | 'url_unverified'
+  | 'slug_invalid'
+  | 'slug_taken'
+  | 'valid_until_invalid'
+  | 'limit_reached';
+
+export type ApiErrorResponse = {
+  msg: string;
+  code?: ApiErrorCode;
+};

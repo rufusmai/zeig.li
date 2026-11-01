@@ -3,12 +3,13 @@ import { ServerValue } from 'firebase-admin/database';
 
 import { getRouteRef, getUrlRoute } from '../lib/db';
 import type { SlugRequest } from '../lib/slug';
+import { isTargetAllowed } from '../lib/target';
 
 /**
  * Redirects to the target url that this shortened url points to.
  * The short url is determined by the slug parameter.
- * If the slug is unknown or expired this redirects to the error page,
- * if it is password protected to the password page.
+ * If the slug is unknown, expired or its target is not allowed (anymore)
+ * this redirects to the error page, if it is password protected to the password page.
  *
  * @param {Request} request
  * @param {Response} response
@@ -19,14 +20,21 @@ const resolveUrl = async (
 ): Promise<void> => {
   const { slug } = request.params;
   const route = await getUrlRoute(slug);
+  const notFound = `/error?slug=${encodeURIComponent(slug)}&status=404`;
 
   if (!route) {
-    response.redirect(`/error?slug=${encodeURIComponent(slug)}&status=404`);
+    response.redirect(notFound);
     return;
   }
 
+  // The target is checked once the password is entered (see getUrl)
   if (route.password) {
     response.redirect(`/authorize?slug=${encodeURIComponent(slug)}`);
+    return;
+  }
+
+  if (!(await isTargetAllowed(slug, route))) {
+    response.redirect(notFound);
     return;
   }
 

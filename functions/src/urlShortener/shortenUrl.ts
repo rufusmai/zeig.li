@@ -1,13 +1,20 @@
 import type { Request, Response } from 'express';
+import { logger } from 'firebase-functions';
 
 import { validateSlug } from '../../../src/shared/slug';
 import { nowSeconds } from '../../../src/shared/time';
-import type { ShortenUrlResponse, UrlRoute } from '../../../src/shared/types';
-import { SHORT_DOMAIN, validateUrl } from '../../../src/shared/url';
+import type {
+  ApiErrorCode,
+  ApiErrorResponse,
+  ShortenUrlResponse,
+  UrlRoute,
+} from '../../../src/shared/types';
+import { checkUrl, normalizeUrl, SHORT_DOMAIN } from '../../../src/shared/url';
 import { getUser } from '../lib/auth/firebase';
 import { hashPassword } from '../lib/auth/password';
 import { getRouteRef, getUrlRoutesOfUser } from '../lib/db';
 import { getSlug } from '../lib/slug';
+import { getWebRiskThreats } from '../lib/webRisk';
 
 /**
  * Maximum amount of urls a user can shorten per day if they are not premium
@@ -44,6 +51,16 @@ type ShortenUrlRequest = {
   password?: string;
 };
 
+const fail = (
+  response: Response,
+  status: number,
+  code: ApiErrorCode,
+  msg: string
+): void => {
+  const body: ApiErrorResponse = { msg, code };
+  response.status(status).json(body);
+};
+
 /**
  * Create a new shortened url.
  * Must run after {@link requireIdToken}, so only signed-in (also anonymous) users can create urls.
@@ -60,33 +77,30 @@ const shortenUrl = async (
   const user = getUser(response);
 
   if (!user) {
-    response.status(403).json({
-      msg: 'Missing or invalid ID token!',
-    });
+    fail(response, 403, 'unauthorized', 'Missing or invalid ID token!');
     return;
   }
 
   if (typeof body?.url !== 'string' || !body.url) {
-    response.status(400).json({
-      msg: 'Missing parameters',
-    });
+    fail(response, 400, 'missing_parameters', 'Missing parameters');
     return;
   }
 
-  if (!validateUrl(body.url)) {
-    response.status(400).json({
-      msg: 'Invalid URL',
-    });
+  const urlCheck = checkUrl(body.url);
+  if (urlCheck === 'invalid') {
+    fail(response, 400, 'url_invalid', 'Invalid URL');
+    return;
+  }
+  if (urlCheck === 'blocked') {
+    fail(response, 422, 'url_blocked', 'This URL cannot be shortened');
     return;
   }
 
   // Add https if http(s) protocol is missing in url
-  const url = /^https?:\/\//.test(body.url) ? body.url : `https://${body.url}`;
+  const url = normalizeUrl(body.url);
 
   if (body.slug && !validateSlug(body.slug)) {
-    response.status(422).json({
-      msg: 'Invalid Slug!',
-    });
+    fail(response, 422, 'slug_invalid', 'Invalid Slug!');
     return;
   }
 
@@ -98,19 +112,12 @@ const shortenUrl = async (
       validUntil <= nowSeconds() ||
       validUntil > nowSeconds() + DAY + 60)
   ) {
-    response.status(400).json({
-      msg: 'validUntil must be a Unix timestamp within the next day!',
-    });
-    return;
-  }
-
-  let slug: string;
-  try {
-    slug = await getSlug(body.slug, body.replaceSlugIfExists);
-  } catch {
-    response.status(400).json({
-      msg: 'This slug already exists!',
-    });
+    fail(
+      response,
+      400,
+      'valid_until_invalid',
+      'validUntil must be a Unix timestamp within the next day!'
+    );
     return;
   }
 
@@ -123,11 +130,41 @@ const shortenUrl = async (
     ).length;
 
     if (count >= URL_USER_LIMIT) {
-      response.status(429).json({
-        msg: 'Max url count exceeded!',
-      });
+      fail(response, 429, 'limit_reached', 'Max url count exceeded!');
       return;
     }
+  }
+
+  // Known malware and phishing; without an answer from Web Risk nothing is created
+  let threats: string[];
+  try {
+    threats = await getWebRiskThreats(url);
+  } catch (error) {
+    logger.error('Web Risk lookup failed', error);
+    fail(
+      response,
+      503,
+      'url_unverified',
+      'The URL could not be checked, please try again later'
+    );
+    return;
+  }
+  if (threats.length > 0) {
+    logger.warn('Rejected a url listed by Web Risk', {
+      url,
+      threats,
+      uid: user.uid,
+    });
+    fail(response, 422, 'url_blocked', 'This URL cannot be shortened');
+    return;
+  }
+
+  let slug: string;
+  try {
+    slug = await getSlug(body.slug, body.replaceSlugIfExists);
+  } catch {
+    fail(response, 400, 'slug_taken', 'This slug already exists!');
+    return;
   }
 
   const password =

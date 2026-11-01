@@ -4,7 +4,7 @@ import {
   connectAuthEmulator,
   getAuth,
   signInAnonymously,
-  type User,
+  signOut,
 } from 'firebase/auth';
 import {
   connectDatabaseEmulator,
@@ -50,14 +50,23 @@ const getServices = () => {
 };
 
 /**
- * Returns the signed-in user, signing in anonymously if there is none.
- * Waits for the stored session first, so a reload keeps the same user.
+ * Returns an ID token of the signed-in user, signing in anonymously if there is none.
+ * Waits for the stored session first, so a reload keeps the same user. A stored
+ * session that can't be refreshed anymore (e.g. the user was deleted) is replaced.
  */
-export const getUserOrCreate = async (): Promise<User> => {
+export const getIdToken = async (): Promise<string> => {
   const { auth } = getServices();
   await auth.authStateReady();
 
-  return auth.currentUser ?? (await signInAnonymously(auth)).user;
+  if (auth.currentUser) {
+    try {
+      return await auth.currentUser.getIdToken();
+    } catch {
+      await signOut(auth);
+    }
+  }
+
+  return (await signInAnonymously(auth)).user.getIdToken();
 };
 
 export const getVisitsRef = (slug: string): DatabaseReference =>

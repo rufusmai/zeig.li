@@ -1,7 +1,12 @@
 import { nowSeconds } from '@/shared/time';
-import type { ShortenUrlResponse, UrlInfo } from '@/shared/types';
+import type {
+  ApiErrorCode,
+  ApiErrorResponse,
+  ShortenUrlResponse,
+  UrlInfo,
+} from '@/shared/types';
 
-import { getUserOrCreate } from './firebase';
+import { getIdToken } from './firebase';
 
 /**
  * In development the Hosting emulator forwards the API to the Functions emulator.
@@ -11,7 +16,10 @@ const API_BASE =
   process.env.NODE_ENV === 'development' ? 'http://localhost:5050' : '';
 
 export class ApiError extends Error {
-  constructor(readonly status: number) {
+  constructor(
+    readonly status: number,
+    readonly code?: ApiErrorCode
+  ) {
     super(`Request failed with status ${status}`);
     this.name = 'ApiError';
   }
@@ -21,7 +29,9 @@ const request = async <T>(path: string, init?: RequestInit): Promise<T> => {
   const response = await fetch(`${API_BASE}${path}`, init);
 
   if (!response.ok) {
-    throw new ApiError(response.status);
+    const body = (await response.json().catch(() => undefined)) as
+      ApiErrorResponse | undefined;
+    throw new ApiError(response.status, body?.code);
   }
 
   return (await response.json()) as T;
@@ -56,8 +66,7 @@ export const shortenUrl = async ({
       ? nowSeconds() + visibility.time * 60
       : undefined;
 
-  const user = await getUserOrCreate();
-  const token = await user.getIdToken();
+  const token = await getIdToken();
 
   return request<ShortenUrlResponse>('/url', {
     method: 'POST',

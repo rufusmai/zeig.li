@@ -92,3 +92,6 @@ node_modules/
 
 # next.js
 next-env.d.ts
+
+# local database backups (user data)
+backups/

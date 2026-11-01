@@ -4,6 +4,7 @@ import { ServerValue } from 'firebase-admin/database';
 import type { UrlInfo } from '../../../src/shared/types';
 import { getRouteRef, getUrlRoute } from '../lib/db';
 import type { SlugRequest } from '../lib/slug';
+import { isTargetAllowed } from '../lib/target';
 
 /**
  * Returns public data for a specific shortened url that will be determined by the slug parameter
@@ -16,7 +17,8 @@ const getUrl = async (req: SlugRequest, res: Response): Promise<void> => {
   const { slug } = req.params;
   const route = await getUrlRoute(slug);
 
-  if (!route) {
+  // A visit sends the browser to the target (password page), so check it like a redirect
+  if (!route || (req.query.visit && !(await isTargetAllowed(slug, route)))) {
     res.status(404).json({
       msg: 'Url with that slug does not exist!',
     });

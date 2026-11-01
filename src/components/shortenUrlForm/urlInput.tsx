@@ -6,12 +6,24 @@ import {
 } from '@heroicons/react/24/outline';
 import type { ChangeEvent } from 'react';
 
+/**
+ * Why the url can't be shortened: not a web address, not allowed (our rules or
+ * Google Web Risk), or the server could not check it right now
+ */
+export type UrlProblem = 'invalid' | 'blocked' | 'unverified';
+
+const problemMessages: Record<UrlProblem, string> = {
+  invalid: 'Ungültige URL',
+  blocked: 'Diese URL kann nicht gekürzt werden',
+  unverified: 'Die URL konnte nicht geprüft werden, versuch es gleich nochmal',
+};
+
 type Props = {
   url: string;
   setUrl: (url: string) => void;
   onClose: () => void;
   urlSet: boolean;
-  urlValid: boolean;
+  problem?: UrlProblem;
   loading: boolean;
   done: boolean;
 };
@@ -21,10 +33,12 @@ const UrlInput = ({
   setUrl,
   onClose,
   urlSet,
-  urlValid,
+  problem,
   loading,
   done,
 }: Props) => {
+  // An unverified url may be sent again
+  const urlValid = !problem || problem === 'unverified';
   const handleInput = (e: ChangeEvent<HTMLInputElement>) =>
     setUrl(e.target.value.replaceAll(' ', ''));
 
@@ -60,10 +74,10 @@ const UrlInput = ({
         </label>
         {urlSet && !loading && !done && (
           <span className="font-semibold text-gray-400 dark:text-gray-500">
-            {!urlValid ? (
+            {problem ? (
               <span className="italic">
                 <ExclamationTriangleIcon className="mr-1 inline-block size-5 text-yellow-500" />
-                Ungültige URL
+                {problemMessages[problem]}
               </span>
             ) : (
               <span className="hidden sm:block">

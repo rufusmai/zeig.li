@@ -1057,6 +1057,7 @@ __metadata:
     express: "npm:^5.3.0"
     firebase-admin: "npm:^14.5.0"
     firebase-functions: "npm:^7.4.0"
+    google-auth-library: "npm:^11.3.2"
     typescript: "npm:~6.0.3"
   languageName: unknown
   linkType: soft
@@ -1193,7 +1194,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"google-auth-library@npm:^11.0.0, google-auth-library@npm:^11.1.0, google-auth-library@npm:^11.3.1":
+"google-auth-library@npm:^11.0.0, google-auth-library@npm:^11.1.0, google-auth-library@npm:^11.3.1, google-auth-library@npm:^11.3.2":
   version: 11.3.2
   resolution: "google-auth-library@npm:11.3.2"
   dependencies:

@@ -6,14 +6,14 @@ import { type FormEvent, useState } from 'react';
 import { ApiError, shortenUrl, type UrlVisibility } from '@/lib/api';
 import { getRandomSlug } from '@/shared/slug';
 import type { ShortenUrlResponse } from '@/shared/types';
-import { validateUrl } from '@/shared/url';
+import { checkUrl } from '@/shared/url';
 
 import ErrorBox from './modal/errorBox';
 import LoadingSkeleton from './modal/loadingSkeleton';
 import Modal from './modal/modal';
 import OptionsBox from './modal/optionsBox';
 import SuccessBox from './modal/successBox';
-import UrlInput from './urlInput';
+import UrlInput, { type UrlProblem } from './urlInput';
 
 const visibilities: UrlVisibility[] = [
   { id: 'infinite', name: 'Immer', time: -1 },
@@ -35,9 +35,21 @@ const ShortenUrlForm = () => {
     undefined
   );
   const [limitReached, setLimitReached] = useState(false);
+  // What the server said about a url; only shown while that url is entered
+  const [rejected, setRejected] = useState<
+    { url: string; problem: UrlProblem } | undefined
+  >(undefined);
 
   const urlSet = url.length > 0;
-  const urlValid = validateUrl(url);
+  const urlCheck = checkUrl(url);
+  const problem: UrlProblem | undefined =
+    urlCheck !== 'ok'
+      ? urlCheck
+      : rejected?.url === url
+        ? rejected.problem
+        : undefined;
+  // An unverified url may be sent again
+  const urlValid = !problem || problem === 'unverified';
 
   const reset = () => {
     setUrl('');
@@ -53,7 +65,7 @@ const ShortenUrlForm = () => {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (slugError || loading || shortUrl) {
+    if (!urlValid || slugError || loading || shortUrl) {
       return;
     }
 
@@ -68,14 +80,31 @@ const ShortenUrlForm = () => {
     })
       .then(setShortUrl)
       .catch((error: unknown) => {
+        // Network or sign-in problems: let the user try again
         if (!(error instanceof ApiError)) {
+          setRejected({ url, problem: 'unverified' });
           return;
         }
 
-        if ([400, 422].includes(error.status)) {
-          setSlugError(error.status);
-        } else if (error.status === 429) {
-          setLimitReached(true);
+        switch (error.code) {
+          case 'url_invalid':
+            setRejected({ url, problem: 'invalid' });
+            break;
+          case 'url_blocked':
+            setRejected({ url, problem: 'blocked' });
+            break;
+          case 'url_unverified':
+            setRejected({ url, problem: 'unverified' });
+            break;
+          case 'slug_taken':
+            setSlugError(400);
+            break;
+          case 'slug_invalid':
+            setSlugError(422);
+            break;
+          case 'limit_reached':
+            setLimitReached(true);
+            break;
         }
       })
       .finally(() => {
@@ -115,7 +144,7 @@ const ShortenUrlForm = () => {
           setUrl={setUrl}
           onClose={reset}
           urlSet={urlSet}
-          urlValid={urlValid}
+          problem={problem}
           loading={loading}
           done={!!shortUrl}
         />
