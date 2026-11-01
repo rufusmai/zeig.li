@@ -26,5 +26,6 @@ app.get(
 
 app.get('/:slug', validateSlugMiddleware, resolveUrl);
 
-// Same region as the Realtime Database
-export default onRequest({ region: 'us-central1' }, app);
+// Same region as the Realtime Database. The invoker is set explicitly, so
+// every deploy (not only the first) makes the function publicly reachable.
+export default onRequest({ region: 'us-central1', invoker: 'public' }, app);

@@ -14,9 +14,7 @@
       ".yarn",
       "firebase-debug.log",
       "firebase-debug.*.log",
-      "*.local",
-      "src",
-      "tsconfig.json"
+      "*.local"
     ],
     "predeploy": ["yarn --cwd \"$RESOURCE_DIR\" build"]
   },
