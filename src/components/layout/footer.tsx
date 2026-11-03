@@ -1,10 +1,17 @@
 import Image from 'next/image';
+import { useLocale, useTranslations } from 'next-intl';
+
+import { Link } from '@/i18n/navigation';
+import { LANGUAGE_NAMES, LOCALES } from '@/shared/locale';
 
 const Footer = () => {
+  const t = useTranslations('Footer');
+  const currentLocale = useLocale();
+
   return (
     <footer className="mt-5 p-2 text-center text-gray-500 dark:text-gray-400">
       <div className="inline-flex items-center">
-        von
+        {t('by')}
         <a
           href="https://rufusmai.com"
           target="_blank"
@@ -30,8 +37,26 @@ const Footer = () => {
           rel="noopener noreferrer"
           className="mt-1 inline-block text-xs hover:underline"
         >
-          Auf Github ansehen
+          {t('github')}
         </a>
+      </div>
+      <div className="mt-1 space-x-2 text-xs">
+        {LOCALES.map((locale) =>
+          locale === currentLocale ? (
+            <span key={locale} className="font-semibold">
+              {LANGUAGE_NAMES[locale]}
+            </span>
+          ) : (
+            <Link
+              key={locale}
+              href="/"
+              locale={locale}
+              className="hover:underline"
+            >
+              {LANGUAGE_NAMES[locale]}
+            </Link>
+          )
+        )}
       </div>
     </footer>
   );

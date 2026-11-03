@@ -7,6 +7,7 @@ import {
 } from '@headlessui/react';
 import { CheckIcon, LockClosedIcon } from '@heroicons/react/20/solid';
 import { BackspaceIcon, ChevronUpDownIcon } from '@heroicons/react/24/outline';
+import { useTranslations } from 'next-intl';
 import { type ChangeEvent, Fragment, useEffect } from 'react';
 
 import { checkSlug, type UrlVisibility } from '@/lib/api';
@@ -26,14 +27,14 @@ type Props = {
   setSlugError: (valid: number | undefined) => void;
 };
 
-const getErrorMessage = (error: number | undefined): string => {
+const getErrorMessageKey = (error: number | undefined) => {
   switch (error) {
     case 400:
-      return 'Diese URL ist bereits vergeben!';
+      return 'slugTaken';
     case 422:
-      return `Max. ${MAX_SLUG_LENGTH} Zeichen. Nur Buchstaben, Zahlen und (Unter-)Striche sind erlaubt!`;
+      return 'slugInvalid';
     default:
-      return 'Diese URL ist ungültig';
+      return 'slugError';
   }
 };
 
@@ -49,6 +50,7 @@ const OptionsBox = ({
   slugError,
   setSlugError,
 }: Props) => {
+  const t = useTranslations('Options');
   const handleSlugInput = (e: ChangeEvent<HTMLInputElement>) => {
     const slug = e.target.value;
 
@@ -86,7 +88,7 @@ const OptionsBox = ({
     <div className="flex flex-wrap sm:flex-nowrap">
       <div className="mr-3 w-full">
         <span className="text-sm text-gray-500 dark:text-gray-400">
-          Short-URL:
+          {t('shortUrl')}
         </span>
         <div className="relative text-2xl">
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center">
@@ -114,7 +116,7 @@ const OptionsBox = ({
           leaveTo="opacity-0"
         >
           <div className="text-xs text-red-500 dark:text-red-400">
-            {getErrorMessage(slugError)}
+            {t(getErrorMessageKey(slugError), { max: MAX_SLUG_LENGTH })}
           </div>
         </Transition>
 
@@ -122,7 +124,7 @@ const OptionsBox = ({
           {password !== undefined ? (
             <div>
               <span className="text-sm text-gray-500 dark:text-gray-400">
-                Passwort:
+                {t('password')}
               </span>
               <div className="relative">
                 <input
@@ -150,20 +152,22 @@ const OptionsBox = ({
               onClick={() => enablePassword(true)}
             >
               <LockClosedIcon className="-mt-0.5 mr-1 inline-block size-4" />
-              Mit Passwort schützen
+              {t('protect')}
             </button>
           )}
         </div>
       </div>
       <div className="relative mt-2 w-full flex-none text-left sm:mt-0 sm:ml-auto sm:w-36 sm:text-right">
         <span className="text-sm text-gray-500 dark:text-gray-400">
-          Sichtbarkeit:
+          {t('visibility')}
         </span>
         <Listbox value={visibility} onChange={setVisibility}>
           {({ open }) => (
             <>
               <ListboxButton className="mt-1 ml-auto flex w-full min-w-min items-center justify-between rounded-lg border border-gray-300 py-2 pr-2 pl-3 shadow-xs focus:ring-3 focus:ring-blue-500/50 focus:outline-hidden sm:w-auto dark:border-gray-500 dark:bg-gray-700">
-                <span className="flex-none">{visibility.name}</span>
+                <span className="flex-none">
+                  {t(`visibilities.${visibility.id}`)}
+                </span>
                 <ChevronUpDownIcon className="size-5 flex-none text-gray-400" />
               </ListboxButton>
               <Transition
@@ -183,7 +187,7 @@ const OptionsBox = ({
                         <li
                           className={`relative px-3 py-2 pr-9 ${focus ? 'bg-gray-100 dark:bg-gray-700' : ''} ${selected ? 'bg-gray-200 dark:bg-gray-600' : ''}`}
                         >
-                          {option.name}
+                          {t(`visibilities.${option.id}`)}
 
                           {selected && (
                             <span className="absolute inset-y-0 right-0 flex items-center pr-2">

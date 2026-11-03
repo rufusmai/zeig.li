@@ -32,8 +32,11 @@ yarn emulators
 yarn dev
 ```
 
-Now you can edit all pages (`src/app/`) and components (`src/components/`).  
+Now you can edit all pages (`src/app/[locale]/`) and components (`src/components/`).  
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+The pages are translated with [next-intl](https://next-intl.dev): the texts live in `messages/de.json` and `messages/en.json`, every page has the locale as prefix (`/de`, `/en`).
+A new page also needs its rewrites in `firebase.json`, otherwise Hosting hands the path to the function as a slug.
 
 Learn more about Next.js in the [Next.js Documentation](https://nextjs.org/docs).
 

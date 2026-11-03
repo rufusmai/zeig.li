@@ -4,6 +4,7 @@ import {
   CheckIcon,
   LinkIcon,
 } from '@heroicons/react/24/outline';
+import { useTranslations } from 'next-intl';
 import type { ChangeEvent } from 'react';
 
 /**
@@ -11,12 +12,6 @@ import type { ChangeEvent } from 'react';
  * Google Web Risk), or the server could not check it right now
  */
 export type UrlProblem = 'invalid' | 'blocked' | 'unverified';
-
-const problemMessages: Record<UrlProblem, string> = {
-  invalid: 'Ungültige URL',
-  blocked: 'Diese URL kann nicht gekürzt werden',
-  unverified: 'Die URL konnte nicht geprüft werden, versuch es gleich nochmal',
-};
 
 type Props = {
   url: string;
@@ -37,6 +32,7 @@ const UrlInput = ({
   loading,
   done,
 }: Props) => {
+  const t = useTranslations('UrlInput');
   // An unverified url may be sent again
   const urlValid = !problem || problem === 'unverified';
   const handleInput = (e: ChangeEvent<HTMLInputElement>) =>
@@ -51,10 +47,10 @@ const UrlInput = ({
         className={`transition-max-width duration-300 ease-in-out sm:w-full ${urlSet ? 'max-w-screen sm:max-w-[35rem]' : 'max-w-[15rem]'}`}
       >
         <label className="flex items-center sm:w-full">
-          <span className="sr-only">Url kürzen</span>
+          <span className="sr-only">{t('label')}</span>
           <input
             type="text"
-            placeholder="URL kürzen..."
+            placeholder={t('placeholder')}
             className="-mt-1 mr-2 h-12 w-full min-w-0 border-none bg-transparent text-4xl font-bold placeholder-gray-400 focus:outline-hidden dark:placeholder-gray-500"
             value={url}
             onChange={handleInput}
@@ -77,12 +73,10 @@ const UrlInput = ({
             {problem ? (
               <span className="italic">
                 <ExclamationTriangleIcon className="mr-1 inline-block size-5 text-yellow-500" />
-                {problemMessages[problem]}
+                {t(`problem.${problem}`)}
               </span>
             ) : (
-              <span className="hidden sm:block">
-                Klicke ENTER zum erstellen
-              </span>
+              <span className="hidden sm:block">{t('hint')}</span>
             )}
           </span>
         )}
@@ -90,7 +84,7 @@ const UrlInput = ({
       {urlSet && urlValid && !loading && !done && (
         <button
           type="submit"
-          title="Kurze URL erstellen"
+          title={t('submit')}
           className="ml-1 text-gray-400 transition-colors duration-200 ease-in-out hover:text-gray-900 focus:outline-hidden dark:text-gray-500 dark:hover:text-gray-100"
         >
           <CheckIcon className="size-10" />

@@ -1,7 +1,10 @@
 import { CursorArrowRaysIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 
 const Header = () => {
+  const t = useTranslations('Header');
+
   return (
     <header className="relative my-8">
       <div
@@ -27,7 +30,7 @@ const Header = () => {
             zeig.li
           </span>
           <small className="mt-2 block text-2xl font-semibold text-gray-500 dark:text-gray-400">
-            Zeig&apos; Link:{' '}
+            {t('tagline')}{' '}
             <span className="inline-block h-8 w-16 animate-pulse rounded-lg bg-linear-to-tr from-gray-200 to-gray-100 dark:from-gray-600 dark:to-gray-700">
               ...
             </span>{' '}

@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "emulators",
+      "runtimeExecutable": "yarn",
+      "runtimeArgs": ["emulators"],
+      "port": 4000
+    },
+    {
+      "name": "zeig-dev",
+      "runtimeExecutable": "yarn",
+      "runtimeArgs": ["dev", "--port", "3000"],
+      "port": 3000
+    }
+  ]
+}

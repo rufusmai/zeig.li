@@ -38,8 +38,10 @@ const request = async <T>(path: string, init?: RequestInit): Promise<T> => {
 };
 
 export type UrlVisibility = {
-  id: string;
-  name: string;
+  /**
+   * Also the key of its name in the messages (Options.visibilities)
+   */
+  id: 'infinite' | '5min' | '15min' | '1h' | '1d';
   /**
    * Minutes until the link expires, -1 for never
    */

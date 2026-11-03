@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from 'express';
 
 import { getRandomSlug, validateSlug } from '../../../src/shared/slug';
 import { getUrlRoute } from './db';
+import { getLocale } from './locale';
 
 /**
  * A request for a route with a `:slug` parameter
@@ -30,7 +31,9 @@ export const validateSlugMiddleware = (
         msg: 'Invalid slug!',
       });
     } else {
-      res.redirect(`/error?slug=${encodeURIComponent(slug)}&status=422`);
+      res.redirect(
+        `/${getLocale(req)}/error?slug=${encodeURIComponent(slug)}&status=422`
+      );
     }
     return;
   }

@@ -1,3 +1,5 @@
+import { LOCALES } from './locale';
+
 const BASE64_URL =
   'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
 
@@ -10,7 +12,8 @@ const SLUG_REGEX = /^[A-Za-z0-9\-_]*$/;
  * All reserved words, that can not be used as slug
  * These may be used as internal urls
  */
-const FORBIDDEN_SLUGS = [
+const FORBIDDEN_SLUGS: string[] = [
+  ...LOCALES,
   'url',
   'dashboard',
   'authorize',
