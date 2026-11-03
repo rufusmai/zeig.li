@@ -2,24 +2,26 @@
 
 import { HomeIcon } from '@heroicons/react/20/solid';
 import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
-import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useEffect } from 'react';
 
+import { Link, useRouter } from '@/i18n/navigation';
 import { SHORT_DOMAIN } from '@/shared/url';
 
-const getMessage = (status: number): string => {
+const getMessageKey = (status: number) => {
   switch (status) {
     case 404:
-      return 'Diese Url existiert nicht mehr!';
+      return 'notFound';
     case 422:
-      return 'Ungültiger Slug';
+      return 'invalidSlug';
     default:
-      return 'Ein Fehler ist aufgetreten';
+      return 'unknown';
   }
 };
 
 const ErrorDetails = () => {
+  const t = useTranslations('Error');
   const router = useRouter();
   const searchParams = useSearchParams();
   const slug = searchParams.get('slug');
@@ -42,14 +44,14 @@ const ErrorDetails = () => {
         {`https://${SHORT_DOMAIN}/${slug}`}
       </span>
       <h2 className="mx-auto mt-2 max-w-xs text-4xl font-bold text-gray-500 dark:text-gray-300">
-        {getMessage(Number(status))}
+        {t(getMessageKey(Number(status)))}
       </h2>
       <Link
         href="/"
         className="mt-8 inline-flex items-center font-semibold text-blue-500 transition duration-200 ease-in-out hover:text-blue-400 focus:outline-hidden dark:text-blue-400 dark:hover:text-blue-300"
       >
         <HomeIcon className="mr-1 size-5" />
-        Startseite
+        {t('home')}
       </Link>
     </div>
   );

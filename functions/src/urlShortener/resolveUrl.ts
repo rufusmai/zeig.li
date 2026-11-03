@@ -2,6 +2,7 @@ import type { Response } from 'express';
 import { ServerValue } from 'firebase-admin/database';
 
 import { getRouteRef, getUrlRoute } from '../lib/db';
+import { getLocale } from '../lib/locale';
 import type { SlugRequest } from '../lib/slug';
 import { isTargetAllowed } from '../lib/target';
 
@@ -20,7 +21,8 @@ const resolveUrl = async (
 ): Promise<void> => {
   const { slug } = request.params;
   const route = await getUrlRoute(slug);
-  const notFound = `/error?slug=${encodeURIComponent(slug)}&status=404`;
+  const locale = getLocale(request);
+  const notFound = `/${locale}/error?slug=${encodeURIComponent(slug)}&status=404`;
 
   if (!route) {
     response.redirect(notFound);
@@ -29,7 +31,7 @@ const resolveUrl = async (
 
   // The target is checked once the password is entered (see getUrl)
   if (route.password) {
-    response.redirect(`/authorize?slug=${encodeURIComponent(slug)}`);
+    response.redirect(`/${locale}/authorize?slug=${encodeURIComponent(slug)}`);
     return;
   }
 

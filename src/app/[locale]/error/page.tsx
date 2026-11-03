@@ -1,11 +1,14 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { Suspense } from 'react';
 
 import ErrorDetails from '@/components/error/errorDetails';
 import SmallHeader from '@/components/layout/smallHeader';
 
-export const metadata: Metadata = {
-  title: 'Nicht verfügbar',
+export const generateMetadata = async (): Promise<Metadata> => {
+  const t = await getTranslations('Metadata');
+
+  return { title: t('error') };
 };
 
 const ErrorPage = () => {

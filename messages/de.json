@@ -1,0 +1,63 @@
+{
+  "Metadata": {
+    "title": "zeig.li | URL Shortener",
+    "authorize": "Zugangsdaten benötigt",
+    "error": "Nicht verfügbar"
+  },
+  "Header": {
+    "tagline": "Zeig' Link:"
+  },
+  "Footer": {
+    "by": "von",
+    "github": "Auf Github ansehen"
+  },
+  "UrlInput": {
+    "label": "Url kürzen",
+    "placeholder": "URL kürzen...",
+    "hint": "Klicke ENTER zum erstellen",
+    "submit": "Kurze URL erstellen",
+    "problem": {
+      "invalid": "Ungültige URL",
+      "blocked": "Diese URL kann nicht gekürzt werden",
+      "unverified": "Die URL konnte nicht geprüft werden, versuch es gleich nochmal"
+    }
+  },
+  "Options": {
+    "shortUrl": "Short-URL:",
+    "password": "Passwort:",
+    "protect": "Mit Passwort schützen",
+    "visibility": "Sichtbarkeit:",
+    "visibilities": {
+      "infinite": "Immer",
+      "5min": "5 Minuten",
+      "15min": "15 Minuten",
+      "1h": "Eine Stunde",
+      "1d": "Ein Tag"
+    },
+    "slugTaken": "Diese URL ist bereits vergeben!",
+    "slugInvalid": "Max. {max} Zeichen. Nur Buchstaben, Zahlen und (Unter-)Striche sind erlaubt!",
+    "slugError": "Diese URL ist ungültig"
+  },
+  "Success": {
+    "live": "Deine Url ist live!",
+    "copy": "URL kopieren",
+    "visits": "Aufrufe",
+    "again": "Neue Url kürzen"
+  },
+  "Limit": {
+    "title": "Du hast das Limit von 5 Anfragen pro Tag erreicht!",
+    "question": "Gefällt dir dieser URL-Shortener?",
+    "offer": "Schreibe mir deine Meinung und erhalte kostenlosen Zugang zu mehr URLs!",
+    "contact": "Nachricht schreiben"
+  },
+  "Authorize": {
+    "needsPassword": "benötigt ein Passwort",
+    "hint": "Drücke ENTER zum bestätigen"
+  },
+  "Error": {
+    "notFound": "Diese Url existiert nicht mehr!",
+    "invalidSlug": "Ungültiger Slug",
+    "unknown": "Ein Fehler ist aufgetreten",
+    "home": "Startseite"
+  }
+}

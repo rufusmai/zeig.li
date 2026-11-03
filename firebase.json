@@ -23,16 +23,40 @@
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
       {
+        "source": "/",
+        "destination": "/index.html"
+      },
+      {
         "source": "/authorize",
-        "destination": "/authorize.html"
+        "destination": "/index.html"
       },
       {
         "source": "/error",
-        "destination": "/error.html"
+        "destination": "/index.html"
       },
       {
-        "source": "/",
-        "destination": "/index.html"
+        "source": "/de",
+        "destination": "/de.html"
+      },
+      {
+        "source": "/de/authorize",
+        "destination": "/de/authorize.html"
+      },
+      {
+        "source": "/de/error",
+        "destination": "/de/error.html"
+      },
+      {
+        "source": "/en",
+        "destination": "/en.html"
+      },
+      {
+        "source": "/en/authorize",
+        "destination": "/en/authorize.html"
+      },
+      {
+        "source": "/en/error",
+        "destination": "/en/error.html"
       },
       {
         "source": "/**",

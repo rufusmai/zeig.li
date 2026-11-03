@@ -1,6 +1,7 @@
 import { CursorArrowRaysIcon } from '@heroicons/react/20/solid';
 import { CheckIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline';
 import { onValue } from 'firebase/database';
+import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
 import { getVisitsRef } from '@/lib/firebase';
@@ -13,6 +14,7 @@ type Props = {
 };
 
 const SuccessBox = ({ shortUrl, onClose }: Props) => {
+  const t = useTranslations('Success');
   const [copied, setCopied] = useState<boolean | null>(null);
   const [visits, setVisits] = useState<number | null>(null);
 
@@ -39,7 +41,7 @@ const SuccessBox = ({ shortUrl, onClose }: Props) => {
         <CheckIcon className="hidden size-16 text-green-500 sm:block dark:text-green-400" />
         <div className="w-full sm:ml-3 sm:w-auto">
           <div className="text-sm text-green-600 dark:text-green-400">
-            Deine Url ist live!
+            {t('live')}
           </div>
           <div className="group relative inline-block pr-8">
             <a
@@ -53,7 +55,7 @@ const SuccessBox = ({ shortUrl, onClose }: Props) => {
             <button
               type="button"
               className={`absolute top-1/2 right-0 -translate-y-1/2 text-gray-400 transition-colors duration-200 ease-in-out hover:text-gray-500 focus:outline-hidden dark:text-gray-300 dark:hover:text-gray-100 ${copied ? 'text-green-500 hover:text-green-500 dark:text-green-400 dark:hover:text-green-400' : copied === false && 'text-red-500 hover:text-red-500 dark:text-red-400 dark:hover:text-red-400'}`}
-              title="URL kopieren"
+              title={t('copy')}
               onClick={copyUrl}
             >
               <ClipboardDocumentIcon className="size-6" />
@@ -70,7 +72,7 @@ const SuccessBox = ({ shortUrl, onClose }: Props) => {
               Live
             </span>
             <span className="text-sm text-gray-500 dark:text-gray-300">
-              Aufrufe
+              {t('visits')}
             </span>
           </div>
           <div className="text-2xl font-semibold">{visits ?? '-'}</div>
@@ -82,7 +84,7 @@ const SuccessBox = ({ shortUrl, onClose }: Props) => {
         onClick={onClose}
       >
         <CursorArrowRaysIcon className="mr-1 inline-block size-4" />
-        Neue Url kürzen
+        {t('again')}
       </button>
     </>
   );

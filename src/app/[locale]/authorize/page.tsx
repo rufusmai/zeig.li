@@ -1,11 +1,14 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { Suspense } from 'react';
 
 import AuthorizeForm from '@/components/authorize/authorizeForm';
 import SmallHeader from '@/components/layout/smallHeader';
 
-export const metadata: Metadata = {
-  title: 'Zugangsdaten benötigt',
+export const generateMetadata = async (): Promise<Metadata> => {
+  const t = await getTranslations('Metadata');
+
+  return { title: t('authorize') };
 };
 
 const Authorize = () => {

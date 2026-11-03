@@ -1,12 +1,15 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { type ChangeEvent, type FormEvent, useEffect, useState } from 'react';
 
+import { useRouter } from '@/i18n/navigation';
 import { ApiError, authorizeRoute } from '@/lib/api';
 import { SHORT_DOMAIN } from '@/shared/url';
 
 const AuthorizeForm = () => {
+  const t = useTranslations('Authorize');
   const router = useRouter();
   const slug = useSearchParams().get('slug');
   const [password, setPassword] = useState('');
@@ -48,7 +51,10 @@ const AuthorizeForm = () => {
         if (error.status === 403) {
           handlePasswordError();
         } else if (error.status === 404) {
-          router.push(`/error?slug=${encodeURIComponent(slug)}&status=404`);
+          router.push({
+            pathname: '/error',
+            query: { slug, status: '404' },
+          });
         }
       });
   };
@@ -58,7 +64,7 @@ const AuthorizeForm = () => {
       <h3 className="text-4xl font-bold">
         {SHORT_DOMAIN}/{slug}
       </h3>
-      <span className="text-gray-400">benötigt ein Passwort</span>
+      <span className="text-gray-400">{t('needsPassword')}</span>
 
       <div className="mt-10">
         <input
@@ -71,7 +77,7 @@ const AuthorizeForm = () => {
           autoFocus
         />
         <div className="mt-4 text-sm font-semibold text-gray-500">
-          Drücke ENTER zum bestätigen
+          {t('hint')}
         </div>
       </div>
     </form>

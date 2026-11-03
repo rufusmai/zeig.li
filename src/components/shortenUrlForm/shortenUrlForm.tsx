@@ -17,11 +17,11 @@ import SuccessBox from './modal/successBox';
 import UrlInput, { type UrlProblem } from './urlInput';
 
 const visibilities: UrlVisibility[] = [
-  { id: 'infinite', name: 'Immer', time: -1 },
-  { id: '5min', name: '5 Minuten', time: 5 },
-  { id: '15min', name: '15 Minuten', time: 15 },
-  { id: '1h', name: 'Eine Stunde', time: 60 },
-  { id: '1d', name: 'Ein Tag', time: 60 * 24 },
+  { id: 'infinite', time: -1 },
+  { id: '5min', time: 5 },
+  { id: '15min', time: 15 },
+  { id: '1h', time: 60 },
+  { id: '1d', time: 60 * 24 },
 ];
 
 const ShortenUrlForm = () => {

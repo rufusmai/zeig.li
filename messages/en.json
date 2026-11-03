@@ -1,0 +1,63 @@
+{
+  "Metadata": {
+    "title": "zeig.li | URL Shortener",
+    "authorize": "Password required",
+    "error": "Not available"
+  },
+  "Header": {
+    "tagline": "Show link:"
+  },
+  "Footer": {
+    "by": "by",
+    "github": "View on GitHub"
+  },
+  "UrlInput": {
+    "label": "Shorten URL",
+    "placeholder": "Shorten URL...",
+    "hint": "Press ENTER to create",
+    "submit": "Create short URL",
+    "problem": {
+      "invalid": "Invalid URL",
+      "blocked": "This URL cannot be shortened",
+      "unverified": "The URL could not be checked, please try again in a moment"
+    }
+  },
+  "Options": {
+    "shortUrl": "Short URL:",
+    "password": "Password:",
+    "protect": "Protect with password",
+    "visibility": "Visibility:",
+    "visibilities": {
+      "infinite": "Forever",
+      "5min": "5 minutes",
+      "15min": "15 minutes",
+      "1h": "One hour",
+      "1d": "One day"
+    },
+    "slugTaken": "This URL is already taken!",
+    "slugInvalid": "Max. {max} characters. Only letters, numbers, hyphens and underscores are allowed!",
+    "slugError": "This URL is invalid"
+  },
+  "Success": {
+    "live": "Your URL is live!",
+    "copy": "Copy URL",
+    "visits": "Visits",
+    "again": "Shorten another URL"
+  },
+  "Limit": {
+    "title": "You have reached the limit of 5 requests per day!",
+    "question": "Do you like this URL shortener?",
+    "offer": "Tell me what you think and get free access to more URLs!",
+    "contact": "Send a message"
+  },
+  "Authorize": {
+    "needsPassword": "requires a password",
+    "hint": "Press ENTER to confirm"
+  },
+  "Error": {
+    "notFound": "This URL no longer exists!",
+    "invalidSlug": "Invalid slug",
+    "unknown": "An error occurred",
+    "home": "Home"
+  }
+}
