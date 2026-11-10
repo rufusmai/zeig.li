@@ -50,3 +50,16 @@ yarn typecheck && yarn lint && yarn format:check
 ```
 
 Learn more about Firebase in the [Firebase Documentation](https://firebase.google.com/docs/build).
+
+## 💸 Spending cap
+
+The Blaze plan is capped at about 1 € a month. The budget `zeig-ml: max 1 EUR/Monat` (billing account „Rufus Maiwald Einzelgewerbe“, only project `zeig-ml`) mails the billing admins at 50, 90 and 100 % and publishes the month's costs to the Pub/Sub topic `budget-alerts`.
+The function `budgetKillSwitch` listens on that topic and unlinks the project from billing once the costs reach the budget. Google reports costs a few hours late, so the bill can still end up slightly above 1 €.
+
+After it fires, every paid service is off, the url shortener included. To bring the site back, link the billing account again in the Firebase console (Usage and billing) and redeploy the functions if they don't come back by themselves.
+
+The function runs as `budget-kill-switch@zeig-ml.iam.gserviceaccount.com`, which holds `roles/billing.projectManager` on the project and `roles/run.invoker` on the `budgetkillswitch` Cloud Run service. Deploy it alone with:
+
+```bash
+npx firebase deploy --only functions:budgetKillSwitch
+```
