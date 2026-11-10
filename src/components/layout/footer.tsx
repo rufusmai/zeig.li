@@ -1,6 +1,6 @@
-import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
 
+import RufusmaiLogo from '@/components/layout/rufusmaiLogo';
 import { Link } from '@/i18n/navigation';
 import { LANGUAGE_NAMES, LOCALES } from '@/shared/locale';
 
@@ -12,22 +12,15 @@ const Footer = () => {
     <footer className="mt-5 p-2 text-center text-gray-500 dark:text-gray-400">
       <div className="inline-flex items-center">
         {t('by')}
+        {/* The branding's logo colours: ink and wing, each for light and dark */}
         <a
           href="https://rufusmai.com"
           target="_blank"
           rel="noopener noreferrer"
-          className="ml-2 flex items-center text-lg font-semibold text-gray-900 shadow-xs transition-opacity duration-200 ease-in-out hover:opacity-80 dark:text-gray-100"
+          aria-label="rufusmai"
+          className="ml-2 flex items-center text-[#18181b] transition-opacity duration-200 ease-in-out [--brand-wing:#c75a34] hover:opacity-80 dark:text-[#fafafa] dark:[--brand-wing:#d1633d]"
         >
-          <div className="relative mr-1 inline size-6 overflow-hidden rounded-sm border border-gray-400 bg-white dark:bg-gray-800">
-            <Image
-              src="/avatar.svg"
-              width={24}
-              height={24}
-              alt=""
-              className="size-full"
-            />
-          </div>
-          rufusmai
+          <RufusmaiLogo aria-hidden="true" className="h-6 w-auto" />
         </a>
       </div>
       <div className="mt-1 text-xs">
