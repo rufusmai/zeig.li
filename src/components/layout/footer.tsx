@@ -30,33 +30,44 @@ const Footer = () => {
           rufusmai
         </a>
       </div>
-      <div>
+      <div className="mt-1 text-xs">
         <a
           href="https://github.com/rufusmai/zeig.li"
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-1 inline-block text-xs hover:underline"
+          className="hover:underline"
         >
           {t('github')}
         </a>
-      </div>
-      <div className="mt-1 space-x-2 text-xs">
-        {LOCALES.map((locale) =>
-          locale === currentLocale ? (
-            <span key={locale} className="font-semibold">
-              {LANGUAGE_NAMES[locale]}
-            </span>
-          ) : (
-            <Link
-              key={locale}
-              href="/"
-              locale={locale}
-              className="hover:underline"
-            >
-              {LANGUAGE_NAMES[locale]}
-            </Link>
-          )
-        )}
+        <span aria-hidden="true" className="mx-2">
+          ·
+        </span>
+        <span className="space-x-2">
+          {LOCALES.map((locale) =>
+            locale === currentLocale ? (
+              <span
+                key={locale}
+                lang={locale}
+                title={LANGUAGE_NAMES[locale]}
+                className="font-semibold"
+              >
+                {locale.toUpperCase()}
+              </span>
+            ) : (
+              <Link
+                key={locale}
+                href="/"
+                locale={locale}
+                hrefLang={locale}
+                lang={locale}
+                title={LANGUAGE_NAMES[locale]}
+                className="hover:underline"
+              >
+                {locale.toUpperCase()}
+              </Link>
+            )
+          )}
+        </span>
       </div>
     </footer>
   );
