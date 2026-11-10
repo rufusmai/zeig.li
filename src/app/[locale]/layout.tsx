@@ -28,7 +28,6 @@ export const generateMetadata = async (): Promise<Metadata> => {
       default: t('title'),
       template: '%s | zeig.li',
     },
-    icons: { icon: '/favicon.ico' },
   };
 };
 
