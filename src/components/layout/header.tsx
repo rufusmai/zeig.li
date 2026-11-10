@@ -1,6 +1,7 @@
-import { CursorArrowRaysIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
+
+import LogoIcon from '@/components/layout/logoIcon';
 
 const Header = () => {
   const t = useTranslations('Header');
@@ -22,7 +23,7 @@ const Header = () => {
 
       <div className="relative z-20">
         <div className="mx-auto size-20 rounded-xl border border-gray-400 bg-white/50 p-3 text-gray-600 shadow-xs dark:border-gray-500 dark:bg-gray-800/50 dark:text-blue-100">
-          <CursorArrowRaysIcon className="drop-shadow-logo" />
+          <LogoIcon className="drop-shadow-logo" />
         </div>
 
         <h1 className="mt-2 text-center text-6xl font-bold">
